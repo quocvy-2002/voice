@@ -34,7 +34,7 @@ import os
 import re
 from dataclasses import dataclass, fields
 from functools import partial
-from typing import Any, List, Optional, Union
+from typing import Any, Callable, List, Optional, Union
 
 import numpy as np
 import torch
@@ -601,6 +601,8 @@ class OmniVoice(PreTrainedModel):
         speed: Union[float, list[Optional[float]], None] = None,
         generation_config: Optional[OmniVoiceGenerationConfig] = None,
         normalize_text: bool = False,
+        progress_callback: Callable[[float | None, str], None] | None = None,
+        check_cancelled: Callable[[], None] | None = None,
         **kwargs,
     ) -> list[np.ndarray]:
         """Generate speech audio given text in various modes.
@@ -680,6 +682,11 @@ class OmniVoice(PreTrainedModel):
             else OmniVoiceGenerationConfig.from_dict(kwargs)
         )
 
+        def check() -> None:
+            if check_cancelled is not None:
+                check_cancelled()
+
+        check()
         self.eval()
 
         full_task = self._preprocess_all(
@@ -694,27 +701,53 @@ class OmniVoice(PreTrainedModel):
             duration=duration,
             normalize_text=normalize_text,
         )
+        check()
 
         short_idx, long_idx = full_task.get_indices(
             gen_config, self.audio_tokenizer.config.frame_rate
         )
 
         results = [None] * full_task.batch_size
+        phase_count = int(bool(short_idx)) + int(bool(long_idx))
+        phase_index = 0
+
+        def report_phase(fraction: float | None, stage: str) -> None:
+            if progress_callback is not None:
+                overall = None if fraction is None else min(0.99, (phase_index + fraction) / phase_count)
+                progress_callback(overall, stage)
 
         if short_idx:
             short_task = full_task.slice_task(short_idx)
-            short_results = self._generate_iterative(short_task, gen_config)
+            short_results = self._generate_iterative(
+                short_task,
+                gen_config,
+                step_progress=lambda done, total: report_phase(
+                    done / total, "Đang tạo giọng…"
+                ),
+                check_cancelled=check_cancelled,
+            )
             for idx, res in zip(short_idx, short_results):
                 results[idx] = res
+            phase_index += 1
 
         if long_idx:
             long_task = full_task.slice_task(long_idx)
-            long_results = self._generate_chunked(long_task, gen_config)
+            long_results = self._generate_chunked(
+                long_task,
+                gen_config,
+                progress_callback=report_phase,
+                check_cancelled=check_cancelled,
+            )
             for idx, res in zip(long_idx, long_results):
                 results[idx] = res
+            phase_index += 1
 
+        check()
+        if progress_callback is not None:
+            progress_callback(0.99, "Đang xử lý âm thanh…")
         generated_audios = []
         for i in range(full_task.batch_size):
+            check()
             assert results[i] is not None, f"Result {i} was not generated"
             generated_audios.append(
                 self._decode_and_post_process(
@@ -723,6 +756,8 @@ class OmniVoice(PreTrainedModel):
                     gen_config,  # type: ignore[arg-type]
                 )
             )
+
+        check()
 
         return generated_audios
 
@@ -911,7 +946,11 @@ class OmniVoice(PreTrainedModel):
         return generated_audio
 
     def _generate_chunked(
-        self, task: GenerationTask, gen_config: OmniVoiceGenerationConfig
+        self,
+        task: GenerationTask,
+        gen_config: OmniVoiceGenerationConfig,
+        progress_callback: Callable[[float | None, str], None] | None = None,
+        check_cancelled: Callable[[], None] | None = None,
     ) -> List[List[torch.Tensor]]:
         """Generate long audio by splitting text into chunks and batching.
 
@@ -927,6 +966,8 @@ class OmniVoice(PreTrainedModel):
             Per-item list of chunk token-tensor lists.
         """
         # Chunk each item's text
+        if check_cancelled is not None:
+            check_cancelled()
         all_chunks = []
         for i in range(task.batch_size):
             avg_tokens_per_char = task.target_lens[i] / len(task.texts[i])
@@ -953,8 +994,12 @@ class OmniVoice(PreTrainedModel):
 
         # chunk_results[item_idx] = list of generated token tensors per chunk
         chunk_results = [[] for _ in range(task.batch_size)]
+        completed_batches = 0
 
         def _run_batch(indices, texts, ref_audios, ref_texts):
+            nonlocal completed_batches
+            if check_cancelled is not None:
+                check_cancelled()
             speed_list = task.speed
             target_lens = [
                 self._estimate_target_tokens(
@@ -976,9 +1021,22 @@ class OmniVoice(PreTrainedModel):
                 ref_rms=[task.ref_rms[i] for i in indices],
                 speed=[task.speed[i] for i in indices] if task.speed else None,
             )
-            gen_tokens = self._generate_iterative(sub_task, gen_config)
+            def report_step(done: int, total: int) -> None:
+                if progress_callback is not None:
+                    fraction = min(0.99, (completed_batches + done / total) / max_num_chunks)
+                    progress_callback(fraction, "Đang tạo giọng…")
+
+            gen_tokens = self._generate_iterative(
+                sub_task,
+                gen_config,
+                step_progress=report_step,
+                check_cancelled=check_cancelled,
+            )
+            if check_cancelled is not None:
+                check_cancelled()
             for j, idx in enumerate(indices):
                 chunk_results[idx].append(gen_tokens[j])
+            completed_batches += 1
 
         if all(has_ref):
             # All items have reference audio.
@@ -1273,7 +1331,11 @@ class OmniVoice(PreTrainedModel):
         }
 
     def _generate_iterative(
-        self, task: GenerationTask, gen_config: OmniVoiceGenerationConfig
+        self,
+        task: GenerationTask,
+        gen_config: OmniVoiceGenerationConfig,
+        step_progress: Callable[[int, int], None] | None = None,
+        check_cancelled: Callable[[], None] | None = None,
     ) -> List[torch.Tensor]:
         """N-step iterative unmasked decoding.
 
@@ -1287,6 +1349,8 @@ class OmniVoice(PreTrainedModel):
             input text).
         """
 
+        if check_cancelled is not None:
+            check_cancelled()
         B = task.batch_size
 
         for i in range(B):
@@ -1382,6 +1446,8 @@ class OmniVoice(PreTrainedModel):
         ).view(1, -1, 1)
 
         for step in range(gen_config.num_step):
+            if check_cancelled is not None:
+                check_cancelled()
             batch_logits = self(
                 input_ids=batch_input_ids,
                 audio_mask=batch_audio_mask,
@@ -1423,6 +1489,12 @@ class OmniVoice(PreTrainedModel):
                 tokens[i : i + 1, :, :t_len] = sample_tokens
                 batch_input_ids[i : i + 1, :, c_len - t_len : c_len] = sample_tokens
                 batch_input_ids[B + i : B + i + 1, :, :t_len] = sample_tokens
+
+            if step_progress is not None:
+                step_progress(step + 1, gen_config.num_step)
+
+        if check_cancelled is not None:
+            check_cancelled()
 
         return [tokens[i, :, : task.target_lens[i]] for i in range(B)]
 
