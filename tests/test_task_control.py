@@ -43,6 +43,13 @@ def test_duplicate_start_and_stale_finish_are_ignored():
     assert registry.snapshot("browser-a", "design").run_id == second.run_id
 
 
+def test_one_run_can_only_be_executed_once():
+    run = RunRegistry().begin("browser-a", "clone")
+
+    assert run.claim_execution()
+    assert not run.claim_execution()
+
+
 def test_drop_session_requests_stop_for_all_its_active_runs():
     registry = RunRegistry()
     first = registry.begin("browser-a", "clone")

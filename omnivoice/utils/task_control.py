@@ -35,6 +35,14 @@ class RunControl:
         self._state: RunState = "preparing"
         self._fraction: float | None = None
         self._stage = "Đang chuẩn bị…"
+        self._execution_claimed = False
+
+    def claim_execution(self) -> bool:
+        with self._lock:
+            if self._execution_claimed or self._state not in ACTIVE_STATES:
+                return False
+            self._execution_claimed = True
+            return True
 
     def report(self, fraction: float | None, stage: str) -> None:
         with self._lock:
