@@ -29,7 +29,7 @@ Usage:
 import math
 import time
 from types import MethodType
-from typing import List
+from typing import Callable, List
 
 import flashinfer
 import torch
@@ -220,13 +220,19 @@ class PackedAttnRunner:
 
 
 def _generate_iterative_packed(
-    self, task: GenerationTask, gen_config: OmniVoiceGenerationConfig
+    self,
+    task: GenerationTask,
+    gen_config: OmniVoiceGenerationConfig,
+    step_progress: Callable[[int, int], None] | None = None,
+    check_cancelled: Callable[[], None] | None = None,
 ) -> List[torch.Tensor]:
     """Packed-sequence rewrite of OmniVoice._generate_iterative.
 
     Documents are packed as [cond_0, uncond_0, cond_1, uncond_1, ...] into a
     single batch row; the scoring/unmasking math is identical to the original.
     """
+    if check_cancelled is not None:
+        check_cancelled()
     B = task.batch_size
     inputs_list = [
         self._prepare_inference_inputs(
@@ -388,6 +394,8 @@ def _generate_iterative_packed(
     stats = getattr(self, "_fi_llm_stats", None)
 
     for step in range(gen_config.num_step):
+        if check_cancelled is not None:
+            check_cancelled()
         if stats is not None:
             torch.cuda.synchronize()
             t0 = time.perf_counter()
@@ -437,6 +445,12 @@ def _generate_iterative_packed(
 
             packed_ids[0, :, c_off + c_len - t_len : c_off + c_len] = new_tokens
             packed_ids[0, :, u_off : u_off + t_len] = new_tokens
+
+        if step_progress is not None:
+            step_progress(step + 1, gen_config.num_step)
+
+    if check_cancelled is not None:
+        check_cancelled()
 
     return [tokens_flat[:, st : st + t_len] for (st, t_len) in flat_spans]
 
