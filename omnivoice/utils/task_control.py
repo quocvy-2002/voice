@@ -13,10 +13,11 @@ class TaskCancelled(Exception):
 
 
 RunState = Literal[
-    "preparing", "running", "cancelling", "cancelled", "completed", "failed"
+    "preparing", "running", "cancelling", "publishing", "cancelled", "completed", "failed"
 ]
 RunOutcome = Literal["cancelled", "completed", "failed"]
-ACTIVE_STATES = frozenset({"preparing", "running", "cancelling"})
+ACTIVE_STATES = frozenset({"preparing", "running", "cancelling", "publishing"})
+WORK_STATES = frozenset({"preparing", "running", "cancelling"})
 
 
 @dataclass(frozen=True)
@@ -39,14 +40,14 @@ class RunControl:
 
     def claim_execution(self) -> bool:
         with self._lock:
-            if self._execution_claimed or self._state not in ACTIVE_STATES:
+            if self._execution_claimed or self._state not in WORK_STATES:
                 return False
             self._execution_claimed = True
             return True
 
     def report(self, fraction: float | None, stage: str) -> None:
         with self._lock:
-            if self._state not in ACTIVE_STATES:
+            if self._state not in WORK_STATES:
                 return
             if fraction is not None:
                 fraction = min(0.99, max(0.0, float(fraction)))
@@ -61,12 +62,25 @@ class RunControl:
 
     def request_stop(self) -> bool:
         with self._lock:
-            if self._state not in ACTIVE_STATES:
+            if self._state not in WORK_STATES:
                 return False
             self.cancel_event.set()
-            self._state = "cancelling"
-            self._stage = "Đang dừng…"
+            if self._execution_claimed:
+                self._state = "cancelling"
+                self._stage = "Đang dừng…"
+            else:
+                self._state = "cancelled"
+                self._stage = "Đã dừng."
             return True
+
+    def prepare_delivery(self, outcome: RunOutcome) -> RunOutcome:
+        with self._lock:
+            if outcome == "completed" and self.cancel_event.is_set():
+                outcome = "cancelled"
+            if self._state in WORK_STATES:
+                self._state = "publishing"
+                self._stage = "Đang cập nhật kết quả…"
+            return outcome
 
     def finish(self, outcome: RunOutcome) -> None:
         with self._lock:

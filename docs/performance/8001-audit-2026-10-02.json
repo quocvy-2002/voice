@@ -1,0 +1,333 @@
+{
+  "captured_local_date": "2026-10-02",
+  "project": "D:/youtube/voice_new",
+  "branch": "codex/desktop-ui-redesign",
+  "url": "http://127.0.0.1:8001/",
+  "pid": 20140,
+  "command": "D:/youtube/voice_new/.venv/Scripts/python.exe -u -m omnivoice.cli.demo --ip 0.0.0.0 --port 8001",
+  "environment": {
+    "gpu": "NVIDIA GeForce RTX 3050 6GB Laptop GPU",
+    "vram_mib": 6144,
+    "driver": "581.86",
+    "torch": "2.8.0+cu128",
+    "torchaudio": "2.8.0+cu128",
+    "cuda_runtime": "12.8",
+    "cudnn": 91002,
+    "transformers": "5.17.0",
+    "tts_dtype_from_loader": "float16",
+    "codec_dtype_from_config": "float32",
+    "asr_dtype_from_loader": "float16"
+  },
+  "live_reference_duration_seconds": 110.736009,
+  "live_reference_is_auto_transcribed": true,
+  "live_clone_samples": 396,
+  "sample_window_seconds": 20,
+  "all_clone_samples_in_generation": true,
+  "python_leaf_samples": [
+    {
+      "name": "repeat_kv",
+      "file": "D:\\youtube\\voice_new\\.venv\\Lib\\site-packages\\transformers\\integrations\\sdpa_attention.py",
+      "line": 24,
+      "samples": 79,
+      "percent": 19.95
+    },
+    {
+      "name": "forward",
+      "file": "D:\\youtube\\voice_new\\.venv\\Lib\\site-packages\\torch\\nn\\modules\\linear.py",
+      "line": 125,
+      "samples": 58,
+      "percent": 14.65
+    },
+    {
+      "name": "rotate_half",
+      "file": "D:\\youtube\\voice_new\\.venv\\Lib\\site-packages\\transformers\\models\\qwen3\\modeling_qwen3.py",
+      "line": 144,
+      "samples": 56,
+      "percent": 14.14
+    },
+    {
+      "name": "apply_rotary_pos_emb",
+      "file": "D:\\youtube\\voice_new\\.venv\\Lib\\site-packages\\transformers\\models\\qwen3\\modeling_qwen3.py",
+      "line": 168,
+      "samples": 40,
+      "percent": 10.1
+    },
+    {
+      "name": "forward",
+      "file": "D:\\youtube\\voice_new\\.venv\\Lib\\site-packages\\transformers\\models\\qwen3\\modeling_qwen3.py",
+      "line": 64,
+      "samples": 35,
+      "percent": 8.84
+    },
+    {
+      "name": "sdpa_attention_forward",
+      "file": "D:\\youtube\\voice_new\\.venv\\Lib\\site-packages\\transformers\\integrations\\sdpa_attention.py",
+      "line": 158,
+      "samples": 35,
+      "percent": 8.84
+    },
+    {
+      "name": "_prepare_inference_inputs",
+      "file": "D:\\youtube\\voice_new\\omnivoice\\models\\omnivoice.py",
+      "line": 1299,
+      "samples": 25,
+      "percent": 6.31
+    },
+    {
+      "name": "forward",
+      "file": "D:\\youtube\\voice_new\\.venv\\Lib\\site-packages\\transformers\\models\\qwen3\\modeling_qwen3.py",
+      "line": 63,
+      "samples": 22,
+      "percent": 5.56
+    },
+    {
+      "name": "forward",
+      "file": "D:\\youtube\\voice_new\\.venv\\Lib\\site-packages\\transformers\\models\\qwen3\\modeling_qwen3.py",
+      "line": 62,
+      "samples": 19,
+      "percent": 4.8
+    },
+    {
+      "name": "forward",
+      "file": "D:\\youtube\\voice_new\\.venv\\Lib\\site-packages\\transformers\\models\\qwen3\\modeling_qwen3.py",
+      "line": 82,
+      "samples": 5,
+      "percent": 1.26
+    },
+    {
+      "name": "forward",
+      "file": "D:\\youtube\\voice_new\\.venv\\Lib\\site-packages\\transformers\\models\\qwen3\\modeling_qwen3.py",
+      "line": 61,
+      "samples": 4,
+      "percent": 1.01
+    },
+    {
+      "name": "apply_rotary_pos_emb",
+      "file": "D:\\youtube\\voice_new\\.venv\\Lib\\site-packages\\transformers\\models\\qwen3\\modeling_qwen3.py",
+      "line": 169,
+      "samples": 2,
+      "percent": 0.51
+    },
+    {
+      "name": "update",
+      "file": "D:\\youtube\\voice_new\\.venv\\Lib\\site-packages\\transformers\\cache_utils.py",
+      "line": 146,
+      "samples": 2,
+      "percent": 0.51
+    },
+    {
+      "name": "_gumbel_sample",
+      "file": "D:\\youtube\\voice_new\\omnivoice\\models\\omnivoice.py",
+      "line": 1714,
+      "samples": 2,
+      "percent": 0.51
+    },
+    {
+      "name": "forward",
+      "file": "D:\\youtube\\voice_new\\.venv\\Lib\\site-packages\\transformers\\models\\qwen3\\modeling_qwen3.py",
+      "line": 316,
+      "samples": 2,
+      "percent": 0.51
+    },
+    {
+      "name": "forward",
+      "file": "D:\\youtube\\voice_new\\.venv\\Lib\\site-packages\\transformers\\models\\qwen3\\modeling_qwen3.py",
+      "line": 322,
+      "samples": 2,
+      "percent": 0.51
+    },
+    {
+      "name": "_call_impl",
+      "file": "D:\\youtube\\voice_new\\.venv\\Lib\\site-packages\\torch\\nn\\modules\\module.py",
+      "line": 1784,
+      "samples": 1,
+      "percent": 0.25
+    },
+    {
+      "name": "rotate_half",
+      "file": "D:\\youtube\\voice_new\\.venv\\Lib\\site-packages\\transformers\\models\\qwen3\\modeling_qwen3.py",
+      "line": 143,
+      "samples": 1,
+      "percent": 0.25
+    },
+    {
+      "name": "_predict_tokens_with_scoring",
+      "file": "D:\\youtube\\voice_new\\omnivoice\\models\\omnivoice.py",
+      "line": 1529,
+      "samples": 1,
+      "percent": 0.25
+    },
+    {
+      "name": "_generate_iterative",
+      "file": "D:\\youtube\\voice_new\\omnivoice\\models\\omnivoice.py",
+      "line": 1480,
+      "samples": 1,
+      "percent": 0.25
+    },
+    {
+      "name": "repeat_kv",
+      "file": "D:\\youtube\\voice_new\\.venv\\Lib\\site-packages\\transformers\\integrations\\sdpa_attention.py",
+      "line": 20,
+      "samples": 1,
+      "percent": 0.25
+    },
+    {
+      "name": "_generate_iterative",
+      "file": "D:\\youtube\\voice_new\\omnivoice\\models\\omnivoice.py",
+      "line": 1498,
+      "samples": 1,
+      "percent": 0.25
+    },
+    {
+      "name": "_prepare_embed_inputs",
+      "file": "D:\\youtube\\voice_new\\omnivoice\\models\\omnivoice.py",
+      "line": 488,
+      "samples": 1,
+      "percent": 0.25
+    },
+    {
+      "name": "update",
+      "file": "D:\\youtube\\voice_new\\.venv\\Lib\\site-packages\\transformers\\cache_utils.py",
+      "line": 1397,
+      "samples": 1,
+      "percent": 0.25
+    }
+  ],
+  "gpu_process_memory": [
+    {
+      "Time": "2026-10-02T19:15:10.0435598+07:00",
+      "Kind": "dedicated usage",
+      "MiB": 5497.34
+    },
+    {
+      "Time": "2026-10-02T19:15:10.0435598+07:00",
+      "Kind": "shared usage",
+      "MiB": 2416
+    }
+  ],
+  "gpu_utilization_percent": 100,
+  "gpu_global_used_mib_range": [
+    5830,
+    5906
+  ],
+  "host_ram_total_gib": 11.71,
+  "host_available_mb_after_probes": [
+    1025,
+    1027
+  ],
+  "live_steps": [
+    {
+      "time": "2026-10-02T19:09:21",
+      "pid": 20140,
+      "error": "Error: Failed to get stack traces\n\nCaused by:\n    0: Failed to call get_stack_trace for thread 5752\n    1: Failed to copy PyCodeObject\n    2: Only part of a ReadProcessMemory or WriteProcessMemory request was completed. (os error 299)\n    3: Only part of a ReadProcessMemory or WriteProcessMemory request was completed. (os error 299)\n"
+    },
+    {
+      "time": "2026-10-02T19:09:36",
+      "pid": 20140,
+      "error": null,
+      "_generate_iterative": {
+        "B": "1",
+        "c_lens": "[751]",
+        "max_c_len": "751",
+        "t_len": "334",
+        "step": "17"
+      },
+      "_generate_chunked": {
+        "ci": "33"
+      },
+      "_gen_core": {
+        "ref_audio": "\"C:\\Users\\LENOVO\\AppData\\Local\\Temp\\gradio\\f71851ca9d2b033eab7ceed35eee888a409f6281f717cead5ffadd0a99515dd3\\1002.m4a\"",
+        "num_step": "32",
+        "guidance_scale": "2",
+        "speed": "1",
+        "duration": "None"
+      }
+    },
+    {
+      "time": "2026-10-02T19:09:51",
+      "pid": 20140,
+      "error": null,
+      "_generate_iterative": {
+        "B": "1",
+        "c_lens": "[751]",
+        "max_c_len": "751",
+        "t_len": "334",
+        "step": "25"
+      },
+      "_generate_chunked": {
+        "ci": "33"
+      },
+      "_gen_core": {
+        "ref_audio": "\"C:\\Users\\LENOVO\\AppData\\Local\\Temp\\gradio\\f71851ca9d2b033eab7ceed35eee888a409f6281f717cead5ffadd0a99515dd3\\1002.m4a\"",
+        "num_step": "32",
+        "guidance_scale": "2",
+        "speed": "1",
+        "duration": "None"
+      }
+    },
+    {
+      "time": "2026-10-02T19:10:06",
+      "pid": 20140,
+      "error": null,
+      "_generate_iterative": {
+        "B": "1",
+        "c_lens": "[794]",
+        "max_c_len": "794",
+        "t_len": "370",
+        "step": "0"
+      },
+      "_generate_chunked": {
+        "ci": "34"
+      },
+      "_gen_core": {
+        "ref_audio": "\"C:\\Users\\LENOVO\\AppData\\Local\\Temp\\gradio\\f71851ca9d2b033eab7ceed35eee888a409f6281f717cead5ffadd0a99515dd3\\1002.m4a\"",
+        "num_step": "32",
+        "guidance_scale": "2",
+        "speed": "1",
+        "duration": "None"
+      }
+    }
+  ],
+  "rough_generation_only_estimate": {
+    "steps_advanced": 8,
+    "observation_seconds": 15,
+    "steps_per_chunk": 32,
+    "estimated_chunk_processing_seconds": 60,
+    "chunk_target_tokens": 334,
+    "codec_frame_rate": 25,
+    "chunk_target_audio_seconds": 13.36,
+    "generation_rtf_estimate": 4.491017964071856,
+    "twenty_five_minute_generation_seconds_estimate": 6736.526946107785,
+    "measured_end_to_end_rtf": null
+  },
+  "baseline_cpu_probe": {
+    "cache_outputs_exact_equal": true,
+    "tiny_cache_bytes": 791552,
+    "live_shape_cache_bytes": 177307648,
+    "prompt_modes": [
+      {
+        "grad": true,
+        "inference": false
+      }
+    ],
+    "torch": "2.8.0+cu128"
+  },
+  "patch": {
+    "inference_mode_prompt": true,
+    "unused_kv_cache_disabled": true,
+    "applied_to_running_pid": false,
+    "source_before_sha256": "dc05895b36d124c15e1de2e9c814750529d9a13305d04ec4b42bae6a9243778f",
+    "source_after_sha256": "3227cbe564ecf7b5bd90d09aeb33ba57361b236849da4f4127a4e620303c71bb"
+  },
+  "verification": {
+    "new_tests_passed": 3,
+    "focused_suite_passed": 27,
+    "focused_suite_failed": 1,
+    "existing_failure": "test_task_control.py::test_stop_is_scoped_to_session_and_workflow expects cancelling but unchanged standalone RunControl returns cancelled before execution is claimed",
+    "lint_passed": true,
+    "format_passed": true,
+    "compile_passed": true,
+    "full_audio_quality_comparison_complete": false,
+    "same_data_before_after_gpu_benchmark_complete": false
+  }
+}

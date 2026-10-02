@@ -132,6 +132,34 @@ Try OmniVoice without coding:
 
 For full usage, see the [Python API](#python-api) and [Command-Line Tools](#command-line-tools) sections below.
 
+## Video to Text
+
+The local Gradio demo includes a **Chuyển video thành text** tab for
+transcribing uploaded video or audio files. It supports MP3, WAV, M4A, OGG,
+WebM, FLAC, MP4, MKV, MOV, and AVI, and provides downloadable TXT and SRT
+results.
+
+Before using this tab, synchronize dependencies and make sure FFmpeg is
+available:
+
+```bash
+uv sync
+ffmpeg -version
+```
+
+Launch `omnivoice-demo`, open the transcription tab, upload a file, choose a
+Whisper model and language if needed, then download the resulting TXT or SRT
+file. CPU is the default device. Choose CUDA only when Faster Whisper and your
+local CUDA environment support it.
+
+Trên Windows, Faster Whisper cần thư viện cuBLAS cho CUDA 12 và cuDNN 9 trong
+`PATH`. Nếu thiếu, giao diện chỉ cho chọn CPU để tránh lỗi `cublas64_12.dll`.
+Xem [hướng dẫn GPU của Faster Whisper](https://github.com/SYSTRAN/faster-whisper#gpu).
+
+Trong cả ba tab, tiến độ hiển thị theo phần công việc đã xử lý và có thể tăng
+không đều. Nút **Dừng** có hiệu lực tại điểm xử lý an toàn tiếp theo. Nếu dừng
+chuyển media, phần văn bản đã nhận vẫn hiển thị; tệp TXT/SRT chỉ có khi hoàn tất.
+
 ---
 
 ## Python API

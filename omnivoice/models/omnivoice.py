@@ -524,6 +524,8 @@ class OmniVoice(PreTrainedModel):
             attention_mask=attention_mask,
             return_dict=True,
             position_ids=position_ids,
+            # Each diffusion step recomputes the full sequence; no KV cache is reused.
+            use_cache=False,
         )
         hidden_states = llm_outputs[0]
 
@@ -761,6 +763,7 @@ class OmniVoice(PreTrainedModel):
 
         return generated_audios
 
+    @torch.inference_mode()
     def create_voice_clone_prompt(
         self,
         ref_audio: Union[str, tuple[torch.Tensor, int]],
@@ -806,6 +809,15 @@ class OmniVoice(PreTrainedModel):
                 ).numpy()
             ref_wav = waveform
 
+        source_duration = ref_wav.shape[-1] / self.sampling_rate
+        if source_duration > 20.0 and (ref_text is not None or not preprocess_prompt):
+            raise ValueError(
+                f"Reference audio is {source_duration:.1f} seconds long. "
+                "Use a 3-10 second sample whose speech matches the transcript. "
+                "For a long recording, leave the transcript empty and enable "
+                "preprocessing so the app can trim a short excerpt first."
+            )
+
         ref_rms = float(np.sqrt(np.mean(ref_wav**2)))
         if 0 < ref_rms < 0.1:
             ref_wav = ref_wav * 0.1 / ref_rms
@@ -833,13 +845,11 @@ class OmniVoice(PreTrainedModel):
 
         ref_duration = ref_wav.shape[-1] / self.sampling_rate
         if ref_duration > 20.0:
-            logger.warning(
-                "Reference audio is %.1fs long (>20s). This may cause slower "
-                "generation, higher memory usage, and degraded voice cloning "
-                "quality. We recommend trimming it to 3-10s.",
-                ref_duration,
+            raise ValueError(
+                f"Preprocessing could not shorten the reference audio below "
+                f"20 seconds ({ref_duration:.1f} seconds remain). Use a "
+                "3-10 second sample and keep its transcript aligned."
             )
-
         # Auto-transcribe if ref_text not provided
         if ref_text is None:
             if self._asr_pipe is None:
